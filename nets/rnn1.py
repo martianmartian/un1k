@@ -24,11 +24,12 @@ def drelu(x):
     return 1.*(x>0)
 
 def clip(g,limit=1.5):
-    mi=-limit
-    ma=limit
-    absg=np.abs(g)
-    if np.max(absg)>limit:
-        g=np.clip(g,mi,ma)
+    # mi=-limit
+    # ma=limit
+    # absg=np.abs(g)
+    # if np.max(absg)>limit:
+    #     g=np.clip(g,mi,ma)
+    g=np.tanh(g)
     return g
 
 def visualize(loss):
@@ -51,26 +52,43 @@ def trainer(net,test=0,save=None,cycles=0,lr=0,decay=0,limit=0):
         Loss=[]
         from nets.rnn1_.data1 import getter
         net.lr=lr
+        t=0
         for cycle in range(cycles):
             print('cycle ',cycle)
             data=getter()
             for i in range(1000):
                 x,xindices,yindices,word = next(data)
                 net.learn(x=x,xindices=xindices,yindices=yindices,lr=lr,limit=0)
-                if i>200 and i%10==0 :
+
+                if t>1200 and i%10==0 :
                     net.lr = net.lr*decay
-                    print('net.lr==> ',Loss[-1],'--- Loss[-1]==> ', net.lr)
                 
-                if i % 100 ==0:
+                if i % 10 ==0:
+                    t+=1
                     Loss.append(net.loss(yindices))
 
-                    saveto=save+str(cycle)+'.'+str(i)
-                    np.save(saveto+'.loss.npy',Loss)
-                    np.save(saveto+'.lr.npy',net.lr)
-                    np.save(saveto+'.W.npy',net.W)
-                    np.save(saveto+'.U.npy',net.U)
-                    np.save(saveto+'.V.npy',net.V)
+                    # saveto=save+str(cycle)+'.'+str(i)
+                    # np.save(saveto+'.loss.npy',Loss)
+                    # np.save(saveto+'.lr.npy',net.lr)
+                    # np.save(saveto+'.W.npy',net.W)
+                    # np.save(saveto+'.U.npy',net.U)
+                    # np.save(saveto+'.V.npy',net.V)
 
+                    # if len(Loss)>2 and Loss[-1] > 4:
+                    if t>1800 and t%100==0:
+                        print('net.lr==> ', net.lr,'--- Loss[-1]==> ',Loss[-1])
+                        delta=net.o
+                        delta[np.arange(net.T), yindices] -= 1
+                        print('word ==> \n',word)
+                        print('x ==> \n',x)
+                        print('net.W ==> \n',net.W)
+                        print('net.U ==> \n',net.U)
+                        print('net.V ==> \n',net.V)
+                        print('net.s ==> \n',net.s)
+                        print('net.o ==> \n',net.o)
+                        print('net.y_hats ==> \n',net.y_hats)
+                        print('delta ==> \n',delta)
+                        break
         visualize(Loss)
 
 class rnn:
@@ -78,15 +96,11 @@ class rnn:
         self.dim=30
         self.lr=np.array([0])
 
-        self.W=np.identity(30) # main input
-        self.U=np.identity(30) # recurrent part
+        self.W=np.identity(30)/10 # main input
+        self.U=np.identity(30)/10 # recurrent part
+        # self.U = np.fliplr(np.identity(30))
 
-        self.V=np.identity(30) # softmax weights
-
-        # self.W = np.random.uniform(-np.sqrt(1./self.dim), np.sqrt(1./self.dim), (self.dim, self.dim))
-        # self.U = np.random.uniform(-np.sqrt(1./self.dim), np.sqrt(1./self.dim), (self.dim, self.dim))
-        
-        # self.V = np.random.uniform(-np.sqrt(1./self.dim), np.sqrt(1./self.dim), (self.dim, self.dim))
+        self.V=np.identity(30)/10 # softmax weights
 
         self.y_hats=None
         self.s=None

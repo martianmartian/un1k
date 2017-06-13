@@ -34,7 +34,7 @@ def getter():
         yindices=[ch2i[ch.lower()] for ch in singluars[i]]
         T=len(xindices)
         x=np.zeros((T,30))
-        x[np.arange(T),xindices]=1
+        x[np.arange(T),xindices]=0.03
 
         yield [x,xindices,yindices,singluars[i]]
 
