@@ -4,7 +4,7 @@ import numpy as np
 np.set_printoptions(suppress=True)
 np.set_printoptions(precision=5)
 # np.set_printoptions(threshold=10)
-
+np.random.seed(0)
 
 
 # import index2word, word2index, empty matrix for embedding, 1k identity matrix
@@ -35,8 +35,8 @@ np.set_printoptions(precision=5)
 
 # ===============================================
 from nets.rnn1 import rnn,trainer
-rnnChecker=rnn()
-trainer(rnnChecker,test=2,save='saves/rnnChecker/',cycles=20,lr=0.001,decay=0.9995,limit=0.5)
+rnnChecker=rnn(lr=0.001)
+trainer(rnnChecker,test=2,save='saves/rnnChecker/',cycles=30,decay=0.9995,limit=0.5,reg=0.1)
 # # -----------------------------------------------
 
 

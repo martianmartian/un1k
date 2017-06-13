@@ -24,12 +24,11 @@ def drelu(x):
     return 1.*(x>0)
 
 def clip(g,limit=1.5):
-    # mi=-limit
-    # ma=limit
-    # absg=np.abs(g)
-    # if np.max(absg)>limit:
-    #     g=np.clip(g,mi,ma)
-    g=np.tanh(g)
+    mi=-limit
+    ma=limit
+    absg=np.abs(g)
+    if np.max(absg)>limit:
+        g=np.clip(g,mi,ma)
     return g
 
 def visualize(loss):
@@ -37,7 +36,7 @@ def visualize(loss):
     plt.plot(np.arange(len(loss)),loss,'r')
     plt.show()
 
-def trainer(net,test=0,save=None,cycles=0,lr=0,decay=0,limit=0):
+def trainer(net,test=0,save=None,cycles=0, decay=0,limit=0,reg=0):
     # three tests:
     #     1. used when building nets the first time. 
     #             small data set, fast test
@@ -50,21 +49,21 @@ def trainer(net,test=0,save=None,cycles=0,lr=0,decay=0,limit=0):
 
     elif test==2:
         Loss=[]
-        from nets.rnn1_.data1 import getter
-        net.lr=lr
+        from nets.rnn1_.data1 import getter,i2ch
         t=0
         for cycle in range(cycles):
             print('cycle ',cycle)
             data=getter()
-            for i in range(1000):
-                x,xindices,yindices,word = next(data)
-                net.learn(x=x,xindices=xindices,yindices=yindices,lr=lr,limit=0)
 
-                if t>1200 and i%10==0 :
+            for i in range(1000):
+                x,xindices,yindices,singular,plural = next(data)
+                net.learn(x=x,xindices=xindices,yindices=yindices,limit=limit,reg=reg)
+
+                if t>2000 and i%10==0 :
                     net.lr = net.lr*decay
                 
-                if i % 10 ==0:
-                    t+=1
+                t+=1
+                if i % 100 ==0:
                     Loss.append(net.loss(yindices))
 
                     # saveto=save+str(cycle)+'.'+str(i)
@@ -73,34 +72,45 @@ def trainer(net,test=0,save=None,cycles=0,lr=0,decay=0,limit=0):
                     # np.save(saveto+'.W.npy',net.W)
                     # np.save(saveto+'.U.npy',net.U)
                     # np.save(saveto+'.V.npy',net.V)
+                
+                if i%300 == 0:
+                    print('plur:==> ',plural)
+                    l=net.predict()
+                    print('pred:==> ',''.join([i2ch[index] for index in l]))
+                    print('true:==> ',singular)
+                    print('\n')
 
-                    # if len(Loss)>2 and Loss[-1] > 4:
-                    if t>1800 and t%100==0:
-                        print('net.lr==> ', net.lr,'--- Loss[-1]==> ',Loss[-1])
-                        delta=net.o
-                        delta[np.arange(net.T), yindices] -= 1
-                        print('word ==> \n',word)
-                        print('x ==> \n',x)
-                        print('net.W ==> \n',net.W)
-                        print('net.U ==> \n',net.U)
-                        print('net.V ==> \n',net.V)
-                        print('net.s ==> \n',net.s)
-                        print('net.o ==> \n',net.o)
-                        print('net.y_hats ==> \n',net.y_hats)
-                        print('delta ==> \n',delta)
-                        break
+                # if len(Loss)>2 and Loss[-1] > 4:
+                if t>1000 and Loss[-1]>3.5:
+                    # net.W=clip(net.W)
+
+                    print('net.lr==> ', net.lr,'--- Loss[-1]==> ',Loss[-1])
+                    delta=net.o
+                    delta[np.arange(net.T), yindices] -= 1
+                    print('plural ==> \n',plural)
+                    print('x ==> \n',x)
+                    print('net.W ==> \n',net.W)
+                    print('net.U ==> \n',net.U)
+                    print('net.V ==> \n',net.V)
+                    print('net.s ==> \n',net.s)
+                    print('net.o ==> \n',net.o)
+                    print('net.y_hats ==> \n',net.y_hats)
+                    print('delta ==> \n',delta)
+
         visualize(Loss)
 
 class rnn:
-    def __init__(self):
+    def __init__(self,lr=0.001):
         self.dim=30
-        self.lr=np.array([0])
+        self.lr=lr
 
         self.W=np.identity(30)/10 # main input
         self.U=np.identity(30)/10 # recurrent part
         # self.U = np.fliplr(np.identity(30))
+        # self.U = np.random.rand(30,30)/10
 
         self.V=np.identity(30)/10 # softmax weights
+
 
         self.y_hats=None
         self.s=None
@@ -142,8 +152,10 @@ class rnn:
 
         return Loss
 
+    def predict(self):
+        return np.argmax(self.o, axis=1)
 
-    def learn(self, x=None,xindices=None,yindices=None,y=None, lr=0.00001, test=None, limit=1.5):
+    def learn(self, x=None,xindices=None,yindices=None,y=None, test=None, limit=1,reg=0):
 
         # Note: don't read these code to start to debug.
         # start with the equations instead.
@@ -154,6 +166,10 @@ class rnn:
         # dsdW
         # dsdU
         # dEds
+
+        # here, np.tanh is used to clip the gradients
+            # surprisingly it works pretty well
+        # -0.1* is used to do regularization
 
         self.forward(xindices)
 
@@ -175,24 +191,30 @@ class rnn:
 
         for t in np.arange(self.T):
             dEdV += np.outer(dy[t],self.s[t])
-            dEdV = clip(dEdV)
+            dEdV = np.tanh(dEdV)
 
             dEds[t] = dy[t].dot(self.V)
             dsdW[t] = N_prime[t][:,None] * (x[t] + self.U*dsdW[t-1])
             dEdW += dEds[t][:,None] * dsdW[t]
-            dEdW = clip(dEdW)
+            dEdW = np.tanh(dEdW)
 
             dsdU[t] = N_prime[t][:,None] * (self.s[t-1] + self.U*dsdU[t-1])
             dEdU += dEds[t][:,None] * dsdU[t]
-            dEdU = clip(dEdU)
+            dEdU = np.tanh(dEdU)
             
             # print('np.max(dEdV),np.max(dEdW),np.max(dEdU):==> \n',np.max(dEdV),np.max(dEdW),np.max(dEdU))
             # break
 
-        self.U += lr * dEdW
-        self.V += lr * dEdU
-        self.W += lr * dEdV
+        # self.U += self.lr * dEdW
+        # self.V += self.lr * dEdU
+        # self.W += self.lr * dEdV
 
+        self.U += self.lr * (dEdW-reg*dEdW)
+        self.V += self.lr * (dEdU-reg*dEdU)
+        self.W += self.lr * (dEdV-reg*dEdV)
+
+        # self.W=clip(self.W,limit=2)
+        # self.V=clip(self.V,limit=2)
 
 
 
