@@ -47,7 +47,7 @@ def trainer(net,test=0,save=None,cycles=0, decay=0,limit=0,reg=0):
                 #     print('net.o ==> \n',net.o[:8,:8])
                 #     print('net.y_hats ==> \n',net.y_hats)
                 #     print('delta ==> \n',delta[:8,:8])
-                
+
                 if i % 100 ==0:
                     # this part visualizes loss and accuracy
                     Loss.append(net.loss(yindices))

@@ -38,6 +38,7 @@ class rnn:
 
         self.W=np.identity(30)*0.2 # main input
         self.U=np.identity(30)*0.80 # recurrent part
+        self.b=np.zeros(30) #bias
 
         self.V=np.identity(30)*0.01 # softmax weights
 
@@ -62,7 +63,7 @@ class rnn:
         s = np.zeros((T + 1, self.dim))
         o = np.zeros((T, self.dim))
         for t in np.arange(T):
-            s[t] = relu(self.W[:,xindices[t]] + self.U.dot(s[t-1]))
+            s[t] = relu(self.W[:,xindices[t]] + self.U.dot(s[t-1]) + self.b)
             o[t] = softmax(self.V.dot(s[t]))
 
         self.o=o
@@ -101,6 +102,7 @@ class rnn:
 
         dEdW = np.zeros(self.W.shape)
         dEdU = np.zeros(self.U.shape)
+        dEdb = np.zeros(self.b.shape)
 
         dEdV = np.zeros(self.V.shape)
 
@@ -109,8 +111,10 @@ class rnn:
 
         dsdW = np.zeros((self.T+1,self.dim,self.dim))
         dsdU = np.zeros((self.T+1,self.dim,self.dim))
+        dsdb = np.zeros((self.T+1,self.dim))
 
         dEds=np.zeros((self.T,self.dim))
+
 
         N_prime = drelu(self.s)
 
@@ -128,16 +132,24 @@ class rnn:
             dEdU += dEds[t][:,None] * dsdU[t]
             dEdU = np.tanh(dEdU)
             
+            dsdb[t] = (N_prime[t][:,None] * (self.U * dsdb[t-1][:,None])).mean(axis=1)
+            dEdb += dEds[t] * dsdb[t]
+            dEdb = np.tanh(dEdb)   # move clip outside????
+
             # print('np.max(dEdV),np.max(dEdW),np.max(dEdU):==> \n',np.max(dEdV),np.max(dEdW),np.max(dEdU))
             # break
 
-        # self.U += self.lr * dEdW
-        # self.V += self.lr * dEdU
         # self.W += self.lr * dEdV
+        # self.U += self.lr * dEdW
+        # self.b += self.lr * dEdb
+        # self.V += self.lr * dEdU
 
-        self.U += self.lr * (dEdW-reg*dEdW)
-        self.V += self.lr * (dEdU-reg*dEdU)
         self.W += self.lr * (dEdV-reg*dEdV)
+        self.U += self.lr * (dEdW-reg*dEdW)
+        self.b += self.lr * (dEdb-reg*dEdb)
+
+        self.V += self.lr * (dEdU-reg*dEdU)
+
 
         # self.W=clip(self.W,limit=2)
         # self.V=clip(self.V,limit=2)
