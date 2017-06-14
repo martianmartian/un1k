@@ -39,7 +39,7 @@ class rnn:
         self.W=np.identity(30)*0.2 # main input
         self.U=np.identity(30)*0.80 # recurrent part
 
-        self.V=np.identity(30)/10 # softmax weights
+        self.V=np.identity(30)*0.01 # softmax weights
 
         self.y_hats=None
         self.s=None
