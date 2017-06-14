@@ -34,9 +34,10 @@ np.random.seed(0)
 
 
 # ===============================================
-from nets.rnn1 import rnn,trainer
+from nets.rnn1_.trainer import trainer
+from nets.rnn1 import rnn
 rnnChecker=rnn(lr=0.001)
-trainer(rnnChecker,test=2,save='saves/rnnChecker/',cycles=30,decay=0.9995,limit=0.5,reg=0.1)
+trainer(rnnChecker,test=2,save='saves/rnnChecker/',cycles=10,decay=0.9995,limit=0.5,reg=0.1)
 # # -----------------------------------------------
 
 
