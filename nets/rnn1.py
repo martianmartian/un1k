@@ -36,8 +36,8 @@ class rnn:
         self.dim=30
         self.lr=lr
 
-        self.W=np.identity(30)/10 # main input
-        self.U=np.identity(30)/10 # recurrent part
+        self.W=np.identity(30)*0.2 # main input
+        self.U=np.identity(30)*0.80 # recurrent part
 
         self.V=np.identity(30)/10 # softmax weights
 
@@ -80,8 +80,6 @@ class rnn:
 
         return Loss
 
-    # def predict(self):
-        # return np.argmax(self.o, axis=1)
 
     def learn(self, x=None,xindices=None,yindices=None,y=None, test=None, limit=1,reg=0):
 

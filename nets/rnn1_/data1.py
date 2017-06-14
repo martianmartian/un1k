@@ -19,8 +19,8 @@
 import numpy as np
 from components.w2v import i2w
 
-plurals=[w+'s' for w in i2w]
-singluars=[w+'_' for w in i2w]
+plurals=[w+'es' for w in i2w]
+singluars=[w+'__' for w in i2w]
 
 
 i2ch=['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','_',]
