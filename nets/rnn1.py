@@ -115,45 +115,35 @@ class rnn:
 
         dEds=np.zeros((self.T,self.dim))
 
-
         N_prime = drelu(self.s)
 
 
         for t in np.arange(self.T):
+
             dEdV += np.outer(dy[t],self.s[t])
-            dEdV = np.tanh(dEdV)
 
             dEds[t] = dy[t].dot(self.V)
             dsdW[t] = N_prime[t][:,None] * (x[t] + self.U*dsdW[t-1])
             dEdW += dEds[t][:,None] * dsdW[t]
-            dEdW = np.tanh(dEdW)
 
             dsdU[t] = N_prime[t][:,None] * (self.s[t-1] + self.U*dsdU[t-1])
             dEdU += dEds[t][:,None] * dsdU[t]
-            dEdU = np.tanh(dEdU)
             
             dsdb[t] = (N_prime[t][:,None] * (self.U * dsdb[t-1][:,None])).mean(axis=1)
             dEdb += dEds[t] * dsdb[t]
-            dEdb = np.tanh(dEdb)   # move clip outside????
 
             # print('np.max(dEdV),np.max(dEdW),np.max(dEdU):==> \n',np.max(dEdV),np.max(dEdW),np.max(dEdU))
-            # break
-
-        # self.W += self.lr * dEdV
-        # self.U += self.lr * dEdW
-        # self.b += self.lr * dEdb
-        # self.V += self.lr * dEdU
+            
+        dEdV = np.tanh(dEdV)
+        dEdW = np.tanh(dEdW)
+        dEdU = np.tanh(dEdU)
+        dEdb = np.tanh(dEdb)   # clip inside or outside
 
         self.W += self.lr * (dEdV-reg*dEdV)
         self.U += self.lr * (dEdW-reg*dEdW)
         self.b += self.lr * (dEdb-reg*dEdb)
 
         self.V += self.lr * (dEdU-reg*dEdU)
-
-
-        # self.W=clip(self.W,limit=2)
-        # self.V=clip(self.V,limit=2)
-
 
 
 

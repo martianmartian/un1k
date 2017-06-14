@@ -67,13 +67,6 @@ def trainer(net,test=0,save=None,cycles=0, decay=0,limit=0,reg=0):
                         print('current pred:==> ',''.join([i2ch[j] for j in pred[counter]]))
                         print('current true:==> ',''.join([i2ch[j] for j in true[counter]]))  
 
-                    # print('current plur:==> ',plural)
-                    # l=np.argmax(net.o, axis=1)
-                    # print('current pred:==> ',''.join([i2ch[index] for index in l]))
-                    # print('current true:==> ',singular)
-                    # print('\n')
-
-
                     # saveto=save+str(cycle)+'.'+str(i)
                     # np.save(saveto+'.loss.npy',Loss)
                     # np.save(saveto+'.lr.npy',net.lr)
