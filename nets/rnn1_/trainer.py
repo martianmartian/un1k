@@ -1,11 +1,24 @@
 import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+
 
 def visualize(loss):
-    import matplotlib.pyplot as plt
     plt.plot(np.arange(len(loss)),loss,'r')
     plt.show()
 
-def trainer(net,test=0,save=None,cycles=0, decay=0,limit=0,reg=0):
+
+def heatmap(loc,data):
+    label=['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','_','*','*','*']
+    # plt.figure(figsize=(30, 30))
+    sns.heatmap(data,annot=False,linewidths=.5,cmap='RdBu_r',cbar=True,yticklabels=label,xticklabels=label)
+    # sns.heatmap(data,annot=False,fmt=".1f",linewidths=.5,vmin=-2,vmax=2,cmap='RdBu_r',cbar=True)
+    plt.savefig(loc)
+    plt.clf()
+
+
+def trainer(net,test=0,save=None,maploc=None,cycles=0, decay=0,limit=0,reg=0):
     # three tests:
     #     1. used when building nets the first time. 
     #             small data set, fast test
@@ -15,6 +28,9 @@ def trainer(net,test=0,save=None,cycles=0, decay=0,limit=0,reg=0):
     if test==1:
         from nets.rnn1_.data0 import x,xindices,yindices
         net.learn(x=x,xindices=xindices,yindices=yindices)
+
+    # elif test==2:
+    #     heatmap(net.W,'nets/rnn1_/heatmaps/heatmap.png')
 
     elif test==2:
         Loss=[]
@@ -60,12 +76,18 @@ def trainer(net,test=0,save=None,cycles=0, decay=0,limit=0,reg=0):
                         l=np.argmax(net.o, axis=1)
                         pred.append(l)
                         true.append(yindices)
-                    
+
                     Accu.append(np.equal(np.concatenate(pred),np.concatenate(true)).mean())
 
                     for counter in range(45,50):
                         print('current pred:==> ',''.join([i2ch[j] for j in pred[counter]]))
                         print('current true:==> ',''.join([i2ch[j] for j in true[counter]]))  
+
+                    savemapto = maploc
+                    cyc = str(cycle)+'.'+str(i)
+                    heatmap(savemapto+'/W/'+cyc+'.png',net.W)
+                    heatmap(savemapto+'/U/'+cyc+'.png',net.U)
+                    heatmap(savemapto+'/V/'+cyc+'.png',net.V)
 
                     # saveto=save+str(cycle)+'.'+str(i)
                     # np.save(saveto+'.loss.npy',Loss)
