@@ -1,6 +1,6 @@
 import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
+# import seaborn as sns
+# import matplotlib.pyplot as plt
 
 
 
@@ -29,14 +29,14 @@ def trainer(net,test=0,save=None,maploc=None,cycles=0, decay=0,limit=0,reg=0):
         from nets.rnn1_.data0 import x,xindices,yindices
         net.learn(x=x,xindices=xindices,yindices=yindices)
 
-    # elif test==2:
-    #     heatmap(net.W,'nets/rnn1_/heatmaps/heatmap.png')
-
     elif test==2:
+        import seaborn as sns
+        import matplotlib.pyplot as plt
+        from nets.rnn1_.data1 import getter,i2ch,get_accu
+        
         Loss=[]
         Accu=[]
         t=0
-        from nets.rnn1_.data1 import getter,i2ch,get_accu
         for cycle in range(cycles):
             print('cycle ',cycle)
             data=getter()
@@ -83,11 +83,11 @@ def trainer(net,test=0,save=None,maploc=None,cycles=0, decay=0,limit=0,reg=0):
                         print('current pred:==> ',''.join([i2ch[j] for j in pred[counter]]))
                         print('current true:==> ',''.join([i2ch[j] for j in true[counter]]))  
 
-                    savemapto = maploc
-                    cyc = str(cycle)+'.'+str(i)
-                    heatmap(savemapto+'/W/'+cyc+'.png',net.W)
-                    heatmap(savemapto+'/U/'+cyc+'.png',net.U)
-                    heatmap(savemapto+'/V/'+cyc+'.png',net.V)
+                    # savemapto = maploc
+                    # cyc = str(cycle)+'.'+str(i)
+                    # heatmap(savemapto+'/W/'+cyc+'.png',net.W)
+                    # heatmap(savemapto+'/U/'+cyc+'.png',net.U)
+                    # heatmap(savemapto+'/V/'+cyc+'.png',net.V)
 
                     # saveto=save+str(cycle)+'.'+str(i)
                     # np.save(saveto+'.loss.npy',Loss)
