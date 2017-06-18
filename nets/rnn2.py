@@ -22,8 +22,9 @@ class rnn:
         self.span=5
         self.lr=lr
 
-        self.W=np.tile(np.identity(self.dim)*0.1,(1,self.span))
-        self.U=np.identity(self.dim)*0.8
+        self.W=np.tile(np.identity(self.dim)*0.05,(1,self.span))
+        self.W[:,60:90]*=7
+        self.U=np.identity(self.dim)*0.5
         self.b=np.zeros(30) #bias
 
         self.V=np.identity(self.dim)*0.01           # softmax weights
@@ -34,17 +35,15 @@ class rnn:
         self.T=None  # steps in each learning update cycle
 
 
-    def forward(self,xindices,yindices):
+    def forward(self,x,xindices,yindices):
 
         T = len(yindices)
         s = np.zeros((T + 1, self.dim))
         o = np.zeros((T, self.dim))
 
         for t in np.arange(T):
-            h=0
-            for i in np.arange(self.span):
-                h+=self.W[:,self.dim*i+xindices[t+1]]
-            s[t]+=relu(h+self.U.dot(s[t-1])+self.b)
+            x[t:t+5,:].flatten()
+            s[t]+=relu(self.W.dot(x[t:t+5,:].flatten())+self.U.dot(s[t-1])+self.b)
             o[t] = softmax(self.V.dot(s[t]))
 
         self.o=o
@@ -54,7 +53,7 @@ class rnn:
 
     def learn(self, x=None,xindices=None,yindices=None,y=None, test=None, limit=1,reg=0):
 
-        self.forward(xindices,yindices)
+        self.forward(x,xindices,yindices)
 
         dEdW = np.zeros(self.W.shape)
         dEdU = np.zeros(self.U.shape)
@@ -73,44 +72,38 @@ class rnn:
 
         N_prime = drelu(self.s)
 
-
         for t in np.arange(self.T):
 
             dEdV += np.outer(dy[t],self.s[t])
 
             dEds[t] = dy[t].dot(self.V)
 
-            # for i in np.arange(self.span):
-            #     # h+=self.W[:,self.dim*i+xindices[t+1]]
-            print((self.U*dsdW[t-1]).shape)
-            
-            dsdW[t] = N_prime[t][:,None] * (x[t] + self.U*dsdW[t-1])
+            dsdW[t] = N_prime[t][:,None] * (x[t:t+5,:].flatten() + self.U.dot(dsdW[t-1]))
             dEdW += dEds[t][:,None] * dsdW[t]
 
-            # dsdU[t] = N_prime[t][:,None] * (self.s[t-1] + self.U*dsdU[t-1])
-            # dEdU += dEds[t][:,None] * dsdU[t]
-            
-        #     dsdb[t] = (N_prime[t][:,None] * (self.U * dsdb[t-1][:,None])).mean(axis=1)
-        #     dEdb += dEds[t] * dsdb[t]
+            dsdU[t] = N_prime[t][:,None] * (self.s[t-1] + self.U.dot(dsdU[t-1]))
+            dEdU += dEds[t][:,None] * dsdU[t]
 
-        #     # print('np.max(dEdV),np.max(dEdW),np.max(dEdU):==> \n',np.max(dEdV),np.max(dEdW),np.max(dEdU))
+            dsdb[t] = (N_prime[t][:,None] * (self.U * dsdb[t-1][:,None])).mean(axis=1)
+            dEdb += dEds[t] * dsdb[t]
 
-        # dEdV = np.tanh(dEdV)
-        # dEdW = np.tanh(dEdW)
-        # dEdU = np.tanh(dEdU)
-        # dEdb = np.tanh(dEdb)   # clip inside or outside
+        # #     # print('np.max(dEdV),np.max(dEdW),np.max(dEdU):==> \n',np.max(dEdV),np.max(dEdW),np.max(dEdU))
 
-        # self.W += self.lr * (dEdV-reg*dEdV)
-        # self.U += self.lr * (dEdW-reg*dEdW)
-        # self.b += self.lr * (dEdb-reg*dEdb)
 
-        # self.V += self.lr * (dEdU-reg*dEdU)
+        self.W += self.lr * dEdW
+        self.U += self.lr * dEdU
+        self.b += self.lr * dEdb
+        self.V += self.lr * dEdV
 
 
 
     def loss(self,yindices=None):
         
         Loss=0
+
+        self.y_hats = self.o[np.arange(self.T), yindices]
+        Loss += -1 * np.sum(np.log(self.y_hats))
+        Loss /= self.T
 
         return Loss
 

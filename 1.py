@@ -33,22 +33,22 @@ np.random.seed(0)
 
 
 
-# ===============================================
-from nets.rnn1_.trainer import trainer
-from nets.rnn1 import rnn
-rnnChecker=rnn(lr=0.001)
-trainer(rnnChecker,
-    save='saves/rnnChecker/',
-    maploc='nets/rnn1_/heatmaps/',
-    test=2,cycles=2,decay=0.95,limit=0.5,reg=0.1)
-# # -----------------------------------------------
-
 # # ===============================================
-# from nets.rnn2_.trainer import trainer
-# from nets.rnn2 import rnn
-# crnn=rnn(lr=0.001)
-# trainer(crnn,test=2,cycles=1,decay=0.95,limit=0.5,reg=0.1)
+# from nets.rnn1_.trainer import trainer
+# from nets.rnn1 import rnn
+# rnnChecker=rnn(lr=0.0002)
+# trainer(rnnChecker,
+#     save='saves/rnnChecker/',
+#     maploc='nets/rnn1_/heatmaps/',
+#     test=2,cycles=2,decay=0.95,limit=1,reg=0)
 # # # -----------------------------------------------
+
+# ===============================================
+from nets.rnn2_.trainer import trainer
+from nets.rnn2 import rnn
+crnn=rnn(lr=0.0001)
+trainer(crnn,test=2,cycles=2,decay=0.9,limit=1,reg=0)
+# # -----------------------------------------------
 
 
 

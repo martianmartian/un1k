@@ -36,8 +36,8 @@ class rnn:
         self.dim=30
         self.lr=lr
 
-        self.W=np.identity(30)*0.2 # main input
-        self.U=np.identity(30)*0.80 # recurrent part
+        self.W=np.identity(30)*0.1 # main input
+        self.U=np.identity(30)*0.8 # recurrent part
         self.b=np.zeros(30) #bias
 
         self.V=np.identity(30)*0.01 # softmax weights
@@ -124,7 +124,9 @@ class rnn:
 
             dEds[t] = dy[t].dot(self.V)
 
-            dsdW[t] = N_prime[t][:,None] * (x[t] + self.U.dot(dsdW[t-1]))
+            cache=self.U.dot(dsdW[t-1])
+            cache[:,xindices[t]]+=1
+            dsdW[t] = N_prime[t][:,None] * cache
             dEdW += dEds[t][:,None] * dsdW[t]
 
             dsdU[t] = N_prime[t][:,None] * (self.s[t-1] + self.U.dot(dsdU[t-1]))
@@ -135,17 +137,17 @@ class rnn:
 
             # print('np.max(dEdV),np.max(dEdW),np.max(dEdU):==> \n',np.max(dEdV),np.max(dEdW),np.max(dEdU))
 
-        dEdV = np.tanh(dEdV)
-        dEdW = np.tanh(dEdW)
-        dEdU = np.tanh(dEdU)
-        dEdb = np.tanh(dEdb)   # clip inside or outside
+        # dEdW = np.tanh(dEdW)
+        # dEdU = np.tanh(dEdU)
+        # dEdb = np.tanh(dEdb)   # clip inside or outside
 
-        self.W += self.lr * (dEdV-reg*dEdV)
-        self.U += self.lr * (dEdW-reg*dEdW)
+        # dEdV = np.tanh(dEdV)
+
+        self.W += self.lr * (dEdW-reg*dEdW)
+        self.U += self.lr * (dEdU-reg*dEdU)
         self.b += self.lr * (dEdb-reg*dEdb)
 
-        self.V += self.lr * (dEdU-reg*dEdU)
-
+        self.V += self.lr * (dEdV-reg*dEdV)
 
 
 

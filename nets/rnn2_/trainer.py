@@ -1,6 +1,6 @@
 import numpy as np
-# import seaborn as sns
-# import matplotlib.pyplot as plt
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 
 
@@ -30,61 +30,61 @@ def trainer(net,test=0,save=None,maploc=None,cycles=0, decay=0,limit=0,reg=0):
             print('cycle ',cycle)
             data=getter()
 
-            for i in range(10):
+            for i in range(1000):
                 t+=1
                 x,xindices,yindices,singular,plural = next(data)
                 net.learn(x=x,xindices=xindices,yindices=yindices,limit=limit,reg=reg)
 
-        #         if t>200 and i%10==0 :
-        #             net.lr = net.lr*decay
+                if t>70 and i%10==0 :
+                    net.lr = net.lr*decay
 
-        #         # if t>1000 and Loss[-1]>3.5:
-        #         #     # this part prints the weights if loss starts to go up
-        #         #     print('\nnet.lr==> ', net.lr,'--- Loss[-1]==> ',Loss[-1])
-        #         #     delta=net.o
-        #         #     delta[np.arange(net.T), yindices] -= 1
-        #         #     print('plural ==> \n',plural)
-        #         #     print('x ==> \n',x)
-        #         #     print('net.W ==> \n',net.W[:8,:8])
-        #         #     print('net.U ==> \n',net.U[:8,:8])
-        #         #     print('net.V ==> \n',net.V[:8,:8])
-        #         #     print('net.s ==> \n',net.s[:8,:8])
-        #         #     print('net.o ==> \n',net.o[:8,:8])
-        #         #     print('net.y_hats ==> \n',net.y_hats)
-        #         #     print('delta ==> \n',delta[:8,:8])
+                # if t>1000 and Loss[-1]>3.5:
+                if t%1000==0 and t>1000:
+                    # this part prints the weights if loss starts to go up
+                    print('\nnet.lr==> ', net.lr,'--- Loss[-1]==> ',Loss[-1])
+                    delta=net.o
+                    delta[np.arange(net.T), yindices] -= 1
+                    print('plural ==> \n',plural)
+                    print('x ==> \n',x)
+                    print('net.W ==> \n',net.W[:8,:8])
+                    print('net.U ==> \n',net.U[:8,:8])
+                    print('net.V ==> \n',net.V[:8,:8])
+                    print('net.s ==> \n',net.s[:8,:8])
+                    print('net.o ==> \n',net.o[:8,:8])
+                    print('net.y_hats ==> \n',net.y_hats)
+                    print('delta ==> \n',delta[:8,:8])
 
-        #         if i % 100 ==0:
-        #             # this part visualizes loss and accuracy
-        #             Loss.append(net.loss(yindices))
-        #             data1=get_accu()
-        #             pred=[]
-        #             true=[]
-        #             for counter in range(94):
-        #                 x,xindices,yindices,singular,plural = next(data1)
-        #                 net.forward(xindices)
-        #                 l=np.argmax(net.o, axis=1)
-        #                 pred.append(l)
-        #                 true.append(yindices)
+                if i % 100 ==0:
+                    # this part visualizes loss and accuracy
+                    Loss.append(net.loss(yindices))
+                    data1=get_accu()
+                    pred=[]
+                    true=[]
+                    for counter in range(94):
+                        x,xindices,yindices,singular,plural = next(data1)
+                        net.forward(x,xindices,yindices)
+                        l=np.argmax(net.o, axis=1)
+                        pred.append(l)
+                        true.append(yindices)
 
-        #             Accu.append(np.equal(np.concatenate(pred),np.concatenate(true)).mean())
+                    Accu.append(np.equal(np.concatenate(pred),np.concatenate(true)).mean())
 
-        #             for counter in range(45,50):
-        #                 print('current pred:==> ',''.join([i2ch[j] for j in pred[counter]]))
-        #                 print('current true:==> ',''.join([i2ch[j] for j in true[counter]]))  
+                    for counter in range(45,50):
+                        print('current pred:==> ',''.join([i2ch[j] for j in pred[counter]]))
+                        print('current true:==> ',''.join([i2ch[j] for j in true[counter]]))  
 
-        #             # savemapto = maploc
-        #             # cyc = str(cycle)+'.'+str(i)
-        #             # heatmap(savemapto+'/W/'+cyc+'.png',net.W)
-        #             # heatmap(savemapto+'/U/'+cyc+'.png',net.U)
-        #             # heatmap(savemapto+'/V/'+cyc+'.png',net.V)
+                    # savemapto = maploc
+                    # cyc = str(cycle)+'.'+str(i)
+                    # heatmap(savemapto+'/W/'+cyc+'.png',net.W)
+                    # heatmap(savemapto+'/U/'+cyc+'.png',net.U)
+                    # heatmap(savemapto+'/V/'+cyc+'.png',net.V)
 
-        #             # saveto=save+str(cycle)+'.'+str(i)
-        #             # np.save(saveto+'.loss.npy',Loss)
-        #             # np.save(saveto+'.lr.npy',net.lr)
-        #             # np.save(saveto+'.W.npy',net.W)
-        #             # np.save(saveto+'.U.npy',net.U)
-        #             # np.save(saveto+'.V.npy',net.V)
+                    # saveto=save+str(cycle)+'.'+str(i)
+                    # np.save(saveto+'.loss.npy',Loss)
+                    # np.save(saveto+'.lr.npy',net.lr)
+                    # np.save(saveto+'.W.npy',net.W)
+                    # np.save(saveto+'.U.npy',net.U)
+                    # np.save(saveto+'.V.npy',net.V)
                 
-
-        # visualize(Loss)
-        # visualize(Accu)
+        visualize(Loss)
+        visualize(Accu)

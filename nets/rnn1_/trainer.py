@@ -44,7 +44,7 @@ def trainer(net,test=0,save=None,maploc=None,cycles=0, decay=0,limit=0,reg=0):
                 x,xindices,yindices,singular,plural = next(data)
                 net.learn(x=x,xindices=xindices,yindices=yindices,limit=limit,reg=reg)
 
-                if t>200 and i%10==0 :
+                if t>50 and i%10==0 :
                     net.lr = net.lr*decay
 
                 # if t>1000 and Loss[-1]>3.5:
