@@ -1,6 +1,6 @@
 import numpy as np
-# import seaborn as sns
-# import matplotlib.pyplot as plt
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 
 
@@ -30,8 +30,6 @@ def trainer(net,test=0,save=None,maploc=None,cycles=0, decay=0,limit=0,reg=0):
         net.learn(x=x,xindices=xindices,yindices=yindices)
 
     elif test==2:
-        import seaborn as sns
-        import matplotlib.pyplot as plt
         from nets.rnn1_.data1 import getter,i2ch,get_accu
         
         Loss=[]

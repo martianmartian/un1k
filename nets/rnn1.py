@@ -123,17 +123,18 @@ class rnn:
             dEdV += np.outer(dy[t],self.s[t])
 
             dEds[t] = dy[t].dot(self.V)
-            dsdW[t] = N_prime[t][:,None] * (x[t] + self.U*dsdW[t-1])
+
+            dsdW[t] = N_prime[t][:,None] * (x[t] + self.U.dot(dsdW[t-1]))
             dEdW += dEds[t][:,None] * dsdW[t]
 
-            dsdU[t] = N_prime[t][:,None] * (self.s[t-1] + self.U*dsdU[t-1])
+            dsdU[t] = N_prime[t][:,None] * (self.s[t-1] + self.U.dot(dsdU[t-1]))
             dEdU += dEds[t][:,None] * dsdU[t]
             
             dsdb[t] = (N_prime[t][:,None] * (self.U * dsdb[t-1][:,None])).mean(axis=1)
             dEdb += dEds[t] * dsdb[t]
 
             # print('np.max(dEdV),np.max(dEdW),np.max(dEdU):==> \n',np.max(dEdV),np.max(dEdW),np.max(dEdU))
-            
+
         dEdV = np.tanh(dEdV)
         dEdW = np.tanh(dEdW)
         dEdU = np.tanh(dEdU)
