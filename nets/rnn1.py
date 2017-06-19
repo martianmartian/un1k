@@ -137,11 +137,11 @@ class rnn:
 
             # print('np.max(dEdV),np.max(dEdW),np.max(dEdU):==> \n',np.max(dEdV),np.max(dEdW),np.max(dEdU))
 
-        # dEdW = np.tanh(dEdW)
-        # dEdU = np.tanh(dEdU)
-        # dEdb = np.tanh(dEdb)   # clip inside or outside
+        dEdW = np.tanh(dEdW)
+        dEdU = np.tanh(dEdU)
+        dEdb = np.tanh(dEdb)   # clip inside or outside
 
-        # dEdV = np.tanh(dEdV)
+        dEdV = np.tanh(dEdV)
 
         self.W += self.lr * dEdW
         self.U += self.lr * dEdU
