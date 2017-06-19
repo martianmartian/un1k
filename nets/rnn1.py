@@ -72,7 +72,6 @@ class rnn:
 
 
     def loss(self,yindices=None):
-        
         Loss=0
 
         self.y_hats = self.o[np.arange(self.T), yindices]
@@ -131,7 +130,7 @@ class rnn:
 
             dsdU[t] = N_prime[t][:,None] * (self.s[t-1] + self.U.dot(dsdU[t-1]))
             dEdU += dEds[t][:,None] * dsdU[t]
-            
+
             dsdb[t] = (N_prime[t][:,None] * (self.U * dsdb[t-1][:,None])).mean(axis=1)
             dEdb += dEds[t] * dsdb[t]
 
