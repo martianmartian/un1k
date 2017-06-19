@@ -36,8 +36,8 @@ class rnn:
         self.dim=30
         self.lr=lr
 
-        self.W=np.identity(30)*0.1 # main input
-        self.U=np.identity(30)*0.8 # recurrent part
+        self.W=np.identity(30)*0.5 # main input
+        self.U=np.identity(30)*0.5 # recurrent part
         self.b=np.zeros(30) #bias
 
         self.V=np.identity(30)*0.01 # softmax weights
@@ -143,11 +143,11 @@ class rnn:
 
         # dEdV = np.tanh(dEdV)
 
-        self.W += self.lr * (dEdW-reg*dEdW)
-        self.U += self.lr * (dEdU-reg*dEdU)
-        self.b += self.lr * (dEdb-reg*dEdb)
+        self.W += self.lr * dEdW
+        self.U += self.lr * dEdU
+        self.b += self.lr * dEdb
 
-        self.V += self.lr * (dEdV-reg*dEdV)
+        self.V += self.lr * dEdV
 
 
 

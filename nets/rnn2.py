@@ -22,8 +22,8 @@ class rnn:
         self.span=5
         self.lr=lr
 
-        self.W=np.tile(np.identity(self.dim)*0.05,(1,self.span))
-        self.W[:,60:90]*=7
+        self.W=np.tile(np.identity(self.dim)*0.1,(1,self.span))
+        self.W[:,60:90]*=5
         self.U=np.identity(self.dim)*0.5
         self.b=np.zeros(30) #bias
 

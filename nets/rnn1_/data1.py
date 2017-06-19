@@ -19,16 +19,17 @@
 import numpy as np
 from components.w2v import i2w
 
-plurals=[w+'es' for w in i2w]
-singluars=[w+'__' for w in i2w]
-
+# plurals=[(w+'es').lower() for w in i2w]
+# singluars=[(w+'__').lower() for w in i2w]
+plurals=[(w+'es')[::-1].lower() for w in i2w]
+singluars=[(w+'__')[::-1].lower() for w in i2w]
 
 i2ch=['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','_','*','*','*']
 ch2i=dict((j,i) for i,j in enumerate(i2ch))
 
 def convert(i):
-    xindices=[ch2i[ch.lower()] for ch in plurals[i]]
-    yindices=[ch2i[ch.lower()] for ch in singluars[i]]
+    xindices=[ch2i[ch] for ch in plurals[i]]
+    yindices=[ch2i[ch] for ch in singluars[i]]
     T=len(xindices)
     x=np.zeros((T,30))
     x[np.arange(T),xindices]=1

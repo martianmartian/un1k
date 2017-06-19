@@ -36,7 +36,7 @@ np.random.seed(0)
 # # ===============================================
 # from nets.rnn1_.trainer import trainer
 # from nets.rnn1 import rnn
-# rnnChecker=rnn(lr=0.0002)
+# rnnChecker=rnn(lr=0.0001)
 # trainer(rnnChecker,
 #     save='saves/rnnChecker/',
 #     maploc='nets/rnn1_/heatmaps/',
