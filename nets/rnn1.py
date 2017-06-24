@@ -71,16 +71,6 @@ class rnn:
         self.T=T
 
 
-    def loss(self,yindices=None):
-        Loss=0
-
-        self.y_hats = self.o[np.arange(self.T), yindices]
-        Loss += -1 * np.sum(np.log(self.y_hats))
-        Loss /= self.T
-
-        return Loss
-
-
     def learn(self, x=None,xindices=None,yindices=None,y=None, test=None, limit=1,reg=0):
 
         # Note: don't read these code to start to debug.
@@ -125,14 +115,25 @@ class rnn:
 
             cache=self.U.dot(dsdW[t-1])
             cache[:,xindices[t]]+=1
-            dsdW[t] = N_prime[t][:,None] * cache
-            dEdW += dEds[t][:,None] * dsdW[t]
+            dsdW[t] = N_prime[t] * cache
+            dEdW += dEds[t] * dsdW[t]
 
-            dsdU[t] = N_prime[t][:,None] * (self.s[t-1] + self.U.dot(dsdU[t-1]))
-            dEdU += dEds[t][:,None] * dsdU[t]
+            dsdU[t] = N_prime[t] * (self.s[t-1] + self.U.dot(dsdU[t-1]))
+            dEdU += dEds[t] * dsdU[t]
 
-            dsdb[t] = (N_prime[t][:,None] * (self.U * dsdb[t-1][:,None])).mean(axis=1)
+            dsdb[t] = (N_prime[t] * (self.U * dsdb[t-1])).mean(axis=1)
             dEdb += dEds[t] * dsdb[t]
+
+            # cache=self.U.dot(dsdW[t-1])
+            # cache[:,xindices[t]]+=1
+            # dsdW[t] = N_prime[t][:,None] * cache
+            # dEdW += dEds[t][:,None] * dsdW[t]
+
+            # dsdU[t] = N_prime[t][:,None] * (self.s[t-1] + self.U.dot(dsdU[t-1]))
+            # dEdU += dEds[t][:,None] * dsdU[t]
+
+            # dsdb[t] = (N_prime[t][:,None] * (self.U * dsdb[t-1][:,None])).mean(axis=1)
+            # dEdb += dEds[t] * dsdb[t]
 
             # print('np.max(dEdV),np.max(dEdW),np.max(dEdU):==> \n',np.max(dEdV),np.max(dEdW),np.max(dEdU))
 
@@ -147,6 +148,16 @@ class rnn:
         self.b += self.lr * dEdb
 
         self.V += self.lr * dEdV
+
+
+    def loss(self,yindices=None):
+        Loss=0
+
+        self.y_hats = self.o[np.arange(self.T), yindices]
+        Loss += -1 * np.sum(np.log(self.y_hats))
+        Loss /= self.T
+
+        return Loss
 
 
 

@@ -61,8 +61,10 @@ np.random.seed(0)
 # trainer(crnn,test=2,cycles=2,decay=0.9)
 # # # -----------------------------------------------
 
+# ===============================================
 from nets.lstm1_.trainer import trainer
 from nets.lstm1 import lstm
 lstm=lstm(lr=0.001)
-trainer(lstm,test=2,cycles=1,decay=0.9)
+trainer(lstm,test=2,cycles=2,decay=0.9)
+# # -----------------------------------------------
 
